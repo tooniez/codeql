@@ -1,3 +1,46 @@
+## 1.0.2
+
+No user-facing changes.
+
+## 1.0.1
+
+No user-facing changes.
+
+## 1.0.0
+
+### Breaking Changes
+
+* CodeQL package management is now generally available, and all GitHub-produced CodeQL packages have had their version numbers increased to 1.0.0.
+
+### Minor Analysis Improvements
+
+* Additional heuristics for a new sensitive data classification for private information (e.g. credit card numbers) have been added to the shared `SensitiveDataHeuristics.qll` library. This may result in additional results for queries that use sensitive data such as `rb/sensitive-get-query`.
+
+## 0.9.1
+
+No user-facing changes.
+
+## 0.9.0
+
+### Breaking Changes
+
+* Deleted the deprecated `RegExpPatterns` module from `Regexp.qll`.
+* Deleted the deprecated `security/cwe-020/HostnameRegexpShared.qll` file.
+
+## 0.8.14
+
+No user-facing changes.
+
+## 0.8.13
+
+### Minor Analysis Improvements
+
+* Data flow is now tracked through `ActiveRecord` scopes.
+* Modeled instances of `ActionDispatch::Http::UploadedFile` that can be obtained from element reads of `ActionController::Parameters`, with calls to `original_filename`, `content_type`, and `read` now propagating taint from their receiver. 
+* The second argument, `subquery_name`, of the `ActiveRecord::QueryMethods::from` method, is now recognized as an sql injection sink.
+* Calls to `Typhoeus::Request.new` are now considered as instances of the `Http::Client::Request` concept, with the response body being treated as a remote flow source.
+* New command injection sinks have been added, including `Process.spawn`, `Process.exec`, `Terrapin::CommandLine` and the `open4` gem.
+
 ## 0.8.12
 
 No user-facing changes.

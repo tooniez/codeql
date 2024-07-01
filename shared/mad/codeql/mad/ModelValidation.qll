@@ -33,15 +33,17 @@ module KindValidation<KindValidationConfigSig Config> {
           "bean-validation", "fragment-injection", "groovy-injection", "hostname-verification",
           "information-leak", "intent-redirection", "jexl-injection", "jndi-injection",
           "mvel-injection", "notification", "ognl-injection", "pending-intents",
-          "response-splitting", "trust-boundary-violation", "template-injection", "xpath-injection",
-          "xslt-injection",
+          "response-splitting", "trust-boundary-violation", "template-injection", "url-forward",
+          "xpath-injection", "xslt-injection",
           // JavaScript-only currently, but may be shared in the future
           "mongodb.sink", "nosql-injection", "unsafe-deserialization",
           // Swift-only currently, but may be shared in the future
           "database-store", "format-string", "hash-iteration-count", "predicate-injection",
           "preferences-store", "tls-protocol-version", "transmission", "webview-fetch", "xxe",
           // Go-only currently, but may be shared in the future
-          "jwt"
+          "jwt",
+          // CPP-only currently
+          "remote-sink"
         ]
       or
       this.matches([

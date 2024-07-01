@@ -1,3 +1,47 @@
+## 1.0.2
+
+No user-facing changes.
+
+## 1.0.1
+
+No user-facing changes.
+
+## 1.0.0
+
+### Breaking Changes
+
+* CodeQL package management is now generally available, and all GitHub-produced CodeQL packages have had their version numbers increased to 1.0.0.
+
+### Minor Analysis Improvements
+
+* The query `go/incorrect-integer-conversion` has now been restricted to only use flow through value-preserving steps. This reduces false positives, especially around type switches.
+
+## 0.7.16
+
+No user-facing changes.
+
+## 0.7.15
+
+### Minor Analysis Improvements
+
+* The query `go/incomplete-hostname-regexp` now recognizes more sources involving concatenation of string literals and also follows flow through string concatenation. This may lead to more alerts.
+* Added some more barriers to flow for `go/incorrect-integer-conversion` to reduce false positives, especially around type switches.
+
+## 0.7.14
+
+No user-facing changes.
+
+## 0.7.13
+
+### New Queries
+
+* The query "Slice memory allocation with excessive size value" (`go/uncontrolled-allocation-size`) has been promoted from experimental to the main query pack. Its results will now appear by default. This query was originally [submitted as an experimental query by @Malayke](https://github.com/github/codeql/pull/15130).
+
+### Minor Analysis Improvements
+
+* The query `go/hardcoded-credentials` no longer discards string literals based on "weak password" heuristics.
+* The query `go/sql-injection` now recognizes more sinks in the package `github.com/Masterminds/squirrel`.
+
 ## 0.7.12
 
 No user-facing changes.

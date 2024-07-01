@@ -1,3 +1,63 @@
+## 1.1.1
+
+No user-facing changes.
+
+## 1.1.0
+
+### Major Analysis Improvements
+
+* The precision of virtual dispatch has been improved. This increases precision in general for all data flow queries. 
+
+### Minor Analysis Improvements
+
+* Support for Eclipse Compiler for Java (ecj) has been fixed to work with (a) runs that don't pass `-noExit` and (b) runs that use post-Java-9 command-line arguments.
+
+## 1.0.0
+
+### Breaking Changes
+
+* CodeQL package management is now generally available, and all GitHub-produced CodeQL packages have had their version numbers increased to 1.0.0.
+
+### Major Analysis Improvements
+
+* Added support for data flow through side-effects on static fields. For example, when a static field containing an array is updated.
+
+### Minor Analysis Improvements
+
+* JDK version detection based on Gradle projects has been improved. Java extraction using build-modes `autobuild` or `none` is more likely to pick an appropriate JDK version, particularly when the Android Gradle Plugin or Spring Boot Plugin are in use.
+
+## 0.11.0
+
+### Breaking Changes
+
+* The Java extractor no longer supports the `ODASA_JAVA_LAYOUT`, `ODASA_TOOLS` and `ODASA_HOME` legacy environment variables.
+* The Java extractor no longer supports the `ODASA_BUILD_ERROR_DIR` legacy environment variable.
+
+## 0.10.0
+
+### Breaking Changes
+
+* Deleted the deprecated `AssignLShiftExpr`, `AssignRShiftExpr`, `AssignURShiftExpr`, `LShiftExpr`, `RShiftExpr`, and `URShiftExpr` aliases.
+
+## 0.9.1
+
+### Minor Analysis Improvements
+
+* About 6,700 summary models and 6,800 neutral summary models for the JDK that were generated using data flow have been added. This may lead to new alerts being reported.
+
+## 0.9.0
+
+### Breaking Changes
+
+* The Java extractor no longer supports the `ODASA_SNAPSHOT` legacy environment variable.
+
+### Minor Analysis Improvements
+
+* Increased the precision of some dataflow models of the class `java.net.URL` by distinguishing the parts of a URL.
+* The Java extractor and QL libraries now support Java 22, including support for anonymous variables, lambda parameters and patterns.
+* Pattern cases with multiple patterns and that fall through to or from other pattern cases are now supported. The `PatternCase` class gains the new `getPatternAtIndex` and `getAPattern` predicates, and deprecates `getPattern`.
+* Added a `path-injection` sink for the `open` methods of the `android.os.ParcelFileDescriptor` class.
+
 ## 0.8.12
 
 No user-facing changes.

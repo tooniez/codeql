@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Semmle.Util;
-using Semmle.Util.Logging;
 using Semmle.Autobuild.Shared;
 using Semmle.Extraction.CSharp.DependencyFetching;
 
@@ -15,14 +13,14 @@ namespace Semmle.Autobuild.CSharp
     /// </summary>
     internal class DotNetRule : IBuildRule<CSharpAutobuildOptions>
     {
-        public readonly List<IProjectOrSolution> FailedProjectsOrSolutions = new();
+        public List<IProjectOrSolution> FailedProjectsOrSolutions { get; } = [];
 
         /// <summary>
         /// A list of projects which are incompatible with DotNet.
         /// </summary>
         public IEnumerable<Project<CSharpAutobuildOptions>> NotDotNetProjects { get; private set; }
 
-        public DotNetRule() => NotDotNetProjects = new List<Project<CSharpAutobuildOptions>>();
+        public DotNetRule() => NotDotNetProjects = [];
 
         public BuildScript Analyse(IAutobuilder<CSharpAutobuildOptions> builder, bool auto)
         {
@@ -32,14 +30,14 @@ namespace Semmle.Autobuild.CSharp
             if (auto)
             {
                 NotDotNetProjects = builder.ProjectsOrSolutionsToBuild
-                    .SelectMany(p => Enumerators.Singleton(p).Concat(p.IncludedProjects))
+                    .SelectMany(p => new[] { p }.Concat(p.IncludedProjects))
                     .OfType<Project<CSharpAutobuildOptions>>()
                     .Where(p => !p.DotNetProject);
                 var notDotNetProject = NotDotNetProjects.FirstOrDefault();
 
                 if (notDotNetProject is not null)
                 {
-                    builder.Logger.Log(Severity.Info, "Not using .NET Core because of incompatible project {0}", notDotNetProject);
+                    builder.Logger.LogInfo($"Not using .NET Core because of incompatible project {notDotNetProject}");
                     return BuildScript.Failure;
                 }
 
@@ -150,8 +148,7 @@ namespace Semmle.Autobuild.CSharp
                 Argument("--no-incremental");
 
             return
-                script.Argument(builder.Options.DotNetArguments).
-                    QuoteArgument(projOrSln).
+                script.QuoteArgument(projOrSln).
                     Script;
         }
     }

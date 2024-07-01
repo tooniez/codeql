@@ -1,3 +1,58 @@
+## 1.0.2
+
+No user-facing changes.
+
+## 1.0.1
+
+### Minor Analysis Improvements
+
+* The `cpp/dangerous-function-overflow` no longer produces a false positive alert when the `gets` function does not have exactly one parameter.
+
+## 1.0.0
+
+### Breaking Changes
+
+* CodeQL package management is now generally available, and all GitHub-produced CodeQL packages have had their version numbers increased to 1.0.0.
+
+### Minor Analysis Improvements
+
+* The "Use of unique pointer after lifetime ends" query (`cpp/use-of-unique-pointer-after-lifetime-ends`) no longer reports an alert when the pointer is converted to a boolean
+* The "Variable not initialized before use" query (`cpp/not-initialised`) no longer reports an alert on static variables.
+
+## 0.9.12
+
+### New Queries
+
+* Added a new query, `cpp/iterator-to-expired-container`, to detect the creation of iterators owned by a temporary objects that are about to be destroyed.
+
+## 0.9.11
+
+### Minor Analysis Improvements
+
+* The "Uncontrolled data used in path expression" query (`cpp/path-injection`) query produces fewer near-duplicate results.
+* The "Global variable may be used before initialization" query (`cpp/global-use-before-init`) no longer raises an alert on global variables that are initialized when they are declared.
+* The "Inconsistent null check of pointer" query (`cpp/inconsistent-nullness-testing`) query no longer raises an alert when the guarded check is in a macro expansion.
+
+## 0.9.10
+
+No user-facing changes.
+
+## 0.9.9
+
+### New Queries
+
+* Added a new query, `cpp/type-confusion`, to detect casts to invalid types.
+
+### Query Metadata Changes
+
+* `@precision medium` metadata was added to the `cpp/boost/tls-settings-misconfiguration` and `cpp/boost/use-of-deprecated-hardcoded-security-protocol` queries, and these queries are now included in the security-extended suite. The `@name` metadata of these queries were also updated.
+
+### Minor Analysis Improvements
+
+* The "Missing return-value check for a 'scanf'-like function" query (`cpp/missing-check-scanf`) has been converted to a `path-problem` query.
+* The "Potentially uninitialized local variable" query (`cpp/uninitialized-local`) has been converted to a `path-problem` query.
+* Added models for `GLib` allocation and deallocation functions.
+
 ## 0.9.8
 
 No user-facing changes.

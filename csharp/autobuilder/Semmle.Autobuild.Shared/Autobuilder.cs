@@ -73,16 +73,6 @@ namespace Semmle.Autobuild.Shared
         /// A logger.
         /// </summary>
         ILogger Logger { get; }
-
-        /// <summary>
-        /// Value of CODEQL_EXTRACTOR_<LANG>_ROOT environment variable.
-        /// </summary>
-        string? CodeQLExtractorLangRoot { get; }
-
-        /// <summary>
-        /// Value of CODEQL_PLATFORM environment variable.
-        /// </summary>
-        string? CodeQlPlatform { get; }
     }
 
     /// <summary>
@@ -92,7 +82,7 @@ namespace Semmle.Autobuild.Shared
     /// The overall design is intended to be extensible so that in theory,
     /// it should be possible to add new build rules without touching this code.
     /// </summary>
-    public abstract class Autobuilder<TAutobuildOptions> : IAutobuilder<TAutobuildOptions> where TAutobuildOptions : AutobuildOptionsShared
+    public abstract class Autobuilder<TAutobuildOptions> : IDisposable, IAutobuilder<TAutobuildOptions> where TAutobuildOptions : AutobuildOptionsShared
     {
         /// <summary>
         /// Full file paths of files found in the project directory, as well as
@@ -161,9 +151,6 @@ namespace Semmle.Autobuild.Shared
             if (matchingFiles.Length == 0)
                 return null;
 
-            if (Options.AllSolutions)
-                return matchingFiles.Select(p => p.ProjectOrSolution);
-
             return matchingFiles
                 .Where(f => f.DistanceFromRoot == matchingFiles[0].DistanceFromRoot)
                 .Select(f => f.ProjectOrSolution);
@@ -185,19 +172,6 @@ namespace Semmle.Autobuild.Shared
             projectsOrSolutionsToBuildLazy = new Lazy<IList<IProjectOrSolution>>(() =>
             {
                 List<IProjectOrSolution>? ret;
-                if (options.Solution.Any())
-                {
-                    ret = new List<IProjectOrSolution>();
-                    foreach (var solution in options.Solution)
-                    {
-                        if (actions.FileExists(solution))
-                            ret.Add(new Solution<TAutobuildOptions>(this, solution, true));
-                        else
-                            logger.LogError($"The specified project or solution file {solution} was not found");
-                    }
-                    return ret;
-                }
-
                 // First look for `.proj` files
                 ret = FindFiles(".proj", f => new Project<TAutobuildOptions>(this, f))?.ToList();
                 if (ret is not null)
@@ -212,9 +186,6 @@ namespace Semmle.Autobuild.Shared
                 ret = FindFiles(this.Options.Language.ProjectExtension, f => new Project<TAutobuildOptions>(this, f))?.ToList();
                 return ret ?? new List<IProjectOrSolution>();
             });
-
-            CodeQLExtractorLangRoot = Actions.GetEnvironmentVariable(EnvVars.Root(this.Options.Language));
-            CodeQlPlatform = Actions.GetEnvironmentVariable(EnvVars.Platform);
 
             TrapDir = RequireEnvironmentVariable(EnvVars.TrapDir(this.Options.Language));
             SourceArchiveDir = RequireEnvironmentVariable(EnvVars.SourceArchiveDir(this.Options.Language));
@@ -284,9 +255,6 @@ namespace Semmle.Autobuild.Shared
             logger.LogInfo($"Working directory: {Options.RootDirectory}");
 
             var script = GetBuildScript();
-
-            if (Options.IgnoreErrors)
-                script |= BuildScript.Success;
 
             void startCallback(string s, bool silent)
             {
@@ -370,14 +338,18 @@ namespace Semmle.Autobuild.Shared
             }
         });
 
-        /// <summary>
-        /// Value of CODEQL_EXTRACTOR_<LANG>_ROOT environment variable.
-        /// </summary>
-        public string? CodeQLExtractorLangRoot { get; }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-        /// <summary>
-        /// Value of CODEQL_PLATFORM environment variable.
-        /// </summary>
-        public string? CodeQlPlatform { get; }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                diagnostics.Dispose();
+            }
+        }
     }
 }

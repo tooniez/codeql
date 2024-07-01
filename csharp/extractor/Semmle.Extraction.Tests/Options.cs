@@ -12,11 +12,6 @@ namespace Semmle.Extraction.Tests
         private CSharp.Options? options;
         private CSharp.Standalone.Options? standaloneOptions;
 
-        public OptionsTests()
-        {
-            Environment.SetEnvironmentVariable("LGTM_INDEX_EXTRACTOR", "");
-        }
-
         [Fact]
         public void DefaultOptions()
         {
@@ -28,7 +23,6 @@ namespace Semmle.Extraction.Tests
             Assert.True(options.Threads >= 1);
             Assert.Equal(Verbosity.Info, options.LegacyVerbosity);
             Assert.False(options.Console);
-            Assert.False(options.Fast);
             Assert.Equal(TrapWriter.CompressionMode.Brotli, options.TrapCompression);
         }
 
@@ -166,14 +160,6 @@ namespace Semmle.Extraction.Tests
         }
 
         [Fact]
-        public void Fast()
-        {
-            Environment.SetEnvironmentVariable("LGTM_INDEX_EXTRACTOR", "--fast");
-            options = CSharp.Options.CreateWithEnvironment(Array.Empty<string>());
-            Assert.True(options.Fast);
-        }
-
-        [Fact]
         public void ArchiveArguments()
         {
             using var sw = new StringWriter();
@@ -182,7 +168,7 @@ namespace Semmle.Extraction.Tests
             try
             {
                 File.AppendAllText(file, "Test");
-                sw.WriteContentFromArgumentFile(new string[] { "/noconfig", "@" + file });
+                sw.WriteContentFromArgumentFile(new string[] { "/noconfig", $"@{file}" });
                 Assert.Equal("Test", Regex.Replace(sw.ToString(), @"\t|\n|\r", ""));
             }
             finally

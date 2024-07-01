@@ -63,6 +63,12 @@ class Expr extends StmtParent, @expr {
    * order of destruction.
    */
   DestructorCall getImplicitDestructorCall(int n) {
+    exists(Expr e |
+      e = this.(TemporaryObjectExpr).getExpr() and
+      synthetic_destructor_call(e, max(int i | synthetic_destructor_call(e, i, _)) - n, result)
+    )
+    or
+    not this = any(TemporaryObjectExpr temp).getExpr() and
     synthetic_destructor_call(this, max(int i | synthetic_destructor_call(this, i, _)) - n, result)
   }
 
@@ -1015,8 +1021,33 @@ class DeleteOrDeleteArrayExpr extends Expr, TDeleteOrDeleteArrayExpr {
   Expr getExpr() {
     // If there is a destructor call, the object being deleted is the qualifier
     // otherwise it is the third child.
-    result = this.getChild(3) or result = this.getDestructorCall().getQualifier()
+    exists(Expr exprWithReuse | exprWithReuse = this.getExprWithReuse() |
+      if not exprWithReuse instanceof ReuseExpr
+      then result = exprWithReuse
+      else result = this.getDestructorCall().getQualifier()
+    )
   }
+
+  /**
+   * Gets the object or array being deleted, and gets a `ReuseExpr` when there
+   * is a destructor call and the object is also the qualifier of the call.
+   *
+   * For example, given:
+   * ```
+   * struct HasDestructor { ~HasDestructor(); };
+   * struct PlainOldData { int x, char y; };
+   *
+   * void f(HasDestructor* hasDestructor, PlainOldData* pod) {
+   *   delete hasDestructor;
+   *   delete pod;
+   * }
+   * ```
+   * This predicate yields a `ReuseExpr` for `delete hasDestructor`, as the
+   * the deleted expression has a destructor, and that expression is also
+   * the qualifier of the destructor call. In the case of `delete pod` the
+   * predicate does not yield a `ReuseExpr`, as there is no destructor call.
+   */
+  Expr getExprWithReuse() { result = this.getChild(3) }
 }
 
 /**
@@ -1307,6 +1338,24 @@ class CoAwaitExpr extends UnaryOperation, @co_await {
   override string getOperator() { result = "co_await" }
 
   override int getPrecedence() { result = 16 }
+
+  /**
+   * Gets the Boolean expression that is used to decide if the enclosing
+   * coroutine should be suspended.
+   */
+  Expr getAwaitReady() { result = this.getChild(1) }
+
+  /**
+   * Gets the expression that represents the resume point if the enclosing
+   * coroutine was suspended.
+   */
+  Expr getAwaitResume() { result = this.getChild(2) }
+
+  /**
+   * Gets the expression that is evaluated when the enclosing coroutine is
+   * suspended.
+   */
+  Expr getAwaitSuspend() { result = this.getChild(3) }
 }
 
 /**
@@ -1321,6 +1370,24 @@ class CoYieldExpr extends UnaryOperation, @co_yield {
   override string getOperator() { result = "co_yield" }
 
   override int getPrecedence() { result = 2 }
+
+  /**
+   * Gets the Boolean expression that is used to decide if the enclosing
+   * coroutine should be suspended.
+   */
+  Expr getAwaitReady() { result = this.getChild(1) }
+
+  /**
+   * Gets the expression that represents the resume point if the enclosing
+   * coroutine was suspended.
+   */
+  Expr getAwaitResume() { result = this.getChild(2) }
+
+  /**
+   * Gets the expression that is evaluated when the enclosing coroutine is
+   * suspended.
+   */
+  Expr getAwaitSuspend() { result = this.getChild(3) }
 }
 
 /**
